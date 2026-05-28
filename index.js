@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const { MongoStore } = require('connect-mongo');
 const bodyParser = require('body-parser');
+const flash = require('connect-flash');
 
 require('dotenv').config({ path: 'variables.env' });
 require('./config/db');
@@ -37,6 +38,8 @@ app.use(session({
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.DATABASE })
 }));
+
+app.use(flash());
 
 app.use('/', router());
 
