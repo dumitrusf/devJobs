@@ -9,4 +9,6 @@ mongoose.connection.on('open', () => {
 
 mongoose.connection.on('error', (error) => {
     console.log(error);
-})
+});
+
+require('../models/Vacantes');

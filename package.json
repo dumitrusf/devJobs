@@ -15,9 +15,12 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./index"
+    "dev": "nodemon ./index",
+    "start": "concurrently \"npm run dev\" \"npm run watch\"",
+    "watch": "webpack --watch --mode development"
   },
   "dependencies": {
+    "concurrently": "^10.0.0",
     "connect-mongo": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",
@@ -26,9 +29,15 @@
     "express-session": "^1.19.0",
     "mongoose": "^9.6.3",
     "shortid": "^2.2.17",
-    "slug": "^11.0.1"
+    "slug": "^11.0.1",
+    "trix": "^2.1.19"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
+    "babel-loader": "^10.1.1",
+    "nodemon": "^3.1.14",
+    "webpack": "^5.107.2",
+    "webpack-cli": "^7.0.3"
   }
 }

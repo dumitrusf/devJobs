@@ -7,8 +7,10 @@
       href="https://fonts.googleapis.com/css?family=Rubik:400,700,900"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="/css/trix.css" />
     <link rel="stylesheet" href="/css/app.css" />
-    <link rel="stylesheet" href="" />
+    {{#if trix}}
+    {{/if}}
     <title>{{nombrePagina}}</title>
   </head>
   <body>
@@ -45,5 +47,10 @@
       {{{body}}}
     </div>
 
+    
+    {{#if trix}}
+    <script src="/js/trix.js"></script>
+    {{/if}}
+    <script src="/dist/bundle.js"></script>
   </body>
 </html>
