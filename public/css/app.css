@@ -232,6 +232,9 @@ h3 {
 .vacante-descripcion h1 {
     line-height: 1.4;
 }
+.vacante-descripcion {
+    white-space: pre-wrap;
+}
 .vacante-descripcion *{
     color: white!important;
     line-height: 2.2;
