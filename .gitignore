@@ -1,0 +1,7 @@
+mine/*.md
+/node_modules
+/vendor/
+includes/.env
+.env
+*.logs
+uploads/

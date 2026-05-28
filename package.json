@@ -1,0 +1,27 @@
+{
+  "name": "devjobs",
+  "version": "1.0.0",
+  "description": "A production-ready developer job platform built with Node.js (Express) and MongoDB. Includes user authentication, authorization layers, dynamic vacancy filtering, file uploads (Multer), and automated mailers.",
+  "homepage": "https://github.com/dumitrusf/devJobs#readme",
+  "bugs": {
+    "url": "https://github.com/dumitrusf/devJobs/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dumitrusf/devJobs.git"
+  },
+  "license": "ISC",
+  "author": "Dumitru Stefan-Fernando",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./index"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "express-handlebars": "^8.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
