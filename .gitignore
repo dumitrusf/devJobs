@@ -6,3 +6,4 @@ includes/.env
 variables.env
 *.logs
 uploads/
+.gitnexus

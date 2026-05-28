@@ -5,11 +5,16 @@ const router = require('./routes');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const { MongoStore } = require('connect-mongo');
+const bodyParser = require('body-parser');
 
 require('dotenv').config({ path: 'variables.env' });
 require('./config/db');
 
 const app = express();
+
+// Body Parser, leer formularios
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Handlebars as view engine
 app.engine('handlebars',
