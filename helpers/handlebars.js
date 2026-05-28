@@ -22,5 +22,11 @@ module.exports = {
         });
 
         return html;
+    },
+
+    tipoContrato: (seleccionado, opciones) => {
+        return opciones.fn(this).replace(
+            new RegExp(` value="${seleccionado}"`), '$& selected="selected"'
+        )
     }
 };

@@ -12,5 +12,14 @@ module.exports = () => {
 
     // Muestra una vacante
     router.get('/vacantes/:url', vacantesController.mostrarVacante);
+
+    // Editar Vacante (auth middleware en S.36)
+    router.get('/vacantes/editar/:url', vacantesController.formEditarVacante);
+    router.post('/vacantes/editar/:url',
+        vacantesController.validarVacante,
+        vacantesController.editarVacante
+    );
+    
+    
     return router;
 }
