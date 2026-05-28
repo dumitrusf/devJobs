@@ -3,5 +3,7 @@ mine/*.md
 /vendor/
 includes/.env
 .env
+variables.env
 *.logs
 uploads/
+.gitnexus
