@@ -1,7 +1,13 @@
 const express = require('express');
 const { engine } = require('express-handlebars');
-const router = require('./routes');
 const path = require('path');
+const router = require('./routes');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const { MongoStore } = require('connect-mongo');
+
+require('dotenv').config({ path: 'variables.env' });
+require('./config/db');
 
 const app = express();
 
@@ -17,9 +23,19 @@ app.set('view engine', 'handlebars');
 // static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(cookieParser());
+
+app.use(session({
+    secret: process.env.SECRET,
+    name: process.env.KEY,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.DATABASE })
+}));
+
 app.use('/', router());
 
-app.listen(5001, () => {
-    console.log('Server is running on port 3000');
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
 });
 
