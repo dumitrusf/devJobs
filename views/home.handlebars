@@ -1,6 +1,10 @@
 <main class="lista-vacantes">
     <h2>Vacancies List</h2>
 
+    {{#if busqueda}}
+        <p class="resultados-busqueda">{{vacantes.length}} result(s) for "{{busqueda}}"</p>
+    {{/if}}
+
     {{#if vacantes.length}}
         {{#each vacantes}}
             <div class="vacante">

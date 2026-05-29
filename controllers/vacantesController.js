@@ -95,10 +95,15 @@ exports.editarVacante = async (req, res) => {
 
     vacanteActualizada.skills = req.body.skills.split(',');
 
-    const vacante = await Vacante.findOneAndUpdate({url: req.params.url}, vacanteActualizada, {
+    const vacante = await Vacante.findOneAndUpdate({ url: req.params.url }, vacanteActualizada, {
         new: true,
         runValidators: true
-    } );
+    });
+
+    if (!vacante) {
+        req.flash('error', 'Vacancy not found');
+        return res.redirect('/administracion');
+    }
 
     res.redirect(`/vacantes/${vacante.url}`);
 };
@@ -163,7 +168,7 @@ exports.eliminarVacante = async (req, res) => {
         return res.status(404).send('Vacancy not found');
     }
     
-    if(verificarAutor(vacante, req.user)){
+    if (esAutor(vacante, req.user)) {
         // Todo bien, si es el usuario, eliminar
         await vacante.deleteOne();
         res.status(200).send('Vacancy deleted successfully');
@@ -174,9 +179,24 @@ exports.eliminarVacante = async (req, res) => {
 };
 
 // Verificar si el usuario es el autor de la vacante
-const verificarAutor = (vacante, usuario) => {
+const esAutor = (vacante, usuario) => {
     if (!vacante || !usuario) return false;
     return vacante.autor.toString() === usuario._id.toString();
+};
+
+exports.verificarAutor = async (req, res, next) => {
+    const vacante = await Vacante.findOne({ url: req.params.url });
+
+    if (!vacante) {
+        return next();
+    }
+
+    if (!esAutor(vacante, req.user)) {
+        req.flash('error', 'Not authorized');
+        return res.redirect('/administracion');
+    }
+
+    next();
 };
 
 // Subir archivos en PDF
@@ -234,7 +254,7 @@ exports.mostrarCandidatos = async (req, res) => {
         return res.redirect('/administracion');
     }
 
-    if (!verificarAutor(vacante, req.user)) {
+    if (!esAutor(vacante, req.user)) {
         req.flash('error', 'Not authorized');
         return res.redirect('/administracion');
     }
@@ -244,5 +264,45 @@ exports.mostrarCandidatos = async (req, res) => {
         cerrarSesion: true,
         nombre: req.user.nombre,
         candidatos: vacante.candidatos
+    });
+};
+
+const escapeRegex = (texto) => texto.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Buscador de Vacantes
+exports.buscarVacantes = async (req, res) => {
+    const busqueda = req.body.q?.trim();
+
+    if (!busqueda) {
+        req.flash('error', 'Enter a search term');
+        return res.redirect('/');
+    }
+
+    const palabras = busqueda.split(/\s+/).filter(Boolean);
+    const condiciones = palabras.map((palabra) => {
+        const regex = new RegExp(escapeRegex(palabra), 'i');
+
+        return {
+            $or: [
+                { titulo: regex },
+                { empresa: regex },
+                { ubicacion: regex },
+                { contrato: regex },
+                { salario: regex },
+                { skills: regex },
+                { descripcion: regex }
+            ]
+        };
+    });
+
+    const filtro = condiciones.length === 1 ? condiciones[0] : { $and: condiciones };
+
+    const vacantes = await Vacante.find(filtro).lean();
+
+    res.render('home', {
+        nombrePagina: `Search results: ${busqueda}`,
+        barra: true,
+        busqueda,
+        vacantes
     });
 };

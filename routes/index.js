@@ -25,19 +25,21 @@ module.exports = () => {
         vacantesController.eliminarVacante
     );
 
-    // Muestra una vacante
-    router.get('/vacantes/:url', vacantesController.mostrarVacante);
-
-    // Editar Vacante (auth middleware en S.36)
+    // Editar Vacante (antes de /vacantes/:url)
     router.get('/vacantes/editar/:url',
         authController.verificarUsuario,
+        vacantesController.verificarAutor,
         vacantesController.formEditarVacante
     );
     router.post('/vacantes/editar/:url',
         authController.verificarUsuario,
+        vacantesController.verificarAutor,
         vacantesController.validarVacante,
         vacantesController.editarVacante
     );
+
+    // Muestra una vacante
+    router.get('/vacantes/:url', vacantesController.mostrarVacante);
 
     // Crear Cuentas
     router.get('/crear-cuenta', usuariosController.formCrearCuenta);
@@ -95,6 +97,8 @@ module.exports = () => {
     router.get('/reestablecer-password/:token', authController.reestablecerPassword);
     router.post('/reestablecer-password/:token', authController.guardarPassword);
 
-    
+    // Buscador de Vacantes
+    router.post('/buscador', vacantesController.buscarVacantes);
+
     return router;
 }
