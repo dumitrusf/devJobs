@@ -1,6 +1,37 @@
 const Vacante = require('../models/Vacantes');
 const { body, validationResult } = require('express-validator');
+const multer = require('multer');
+const shortid = require('shortid');
+const path = require('path');
+const fs = require('fs');
 
+const uploadsDir = path.join(__dirname, '../uploads/cv');
+
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const configuracionMulter = {
+    limits: { fileSize: 150000 },
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, uploadsDir);
+        },
+        filename : (req, file, cb) => {
+            const extension = file.mimetype.split('/')[1];
+            cb(null, `${shortid.generate()}.${extension}`);
+        }
+    }),
+    fileFilter(req, file, cb) {
+        if (file.mimetype === 'application/pdf') {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid format. Only PDF files are allowed'));
+        }
+    }
+};
+
+const upload = multer(configuracionMulter).single('cv');
 
 exports.formularioNuevaVacante = (req, res) => {
     res.render('nueva-vacante', {
@@ -38,8 +69,8 @@ exports.mostrarVacante = async (req, res, next) => {
     res.render('vacante', {
         vacante,
         nombrePagina : vacante.titulo,
-        cerrarSesion: true,
-        nombre: req.user.nombre,
+        cerrarSesion: !!req.user,
+        nombre: req.user?.nombre,
         barra: true
     });
 };
@@ -146,4 +177,72 @@ exports.eliminarVacante = async (req, res) => {
 const verificarAutor = (vacante, usuario) => {
     if (!vacante || !usuario) return false;
     return vacante.autor.toString() === usuario._id.toString();
+};
+
+// Subir archivos en PDF
+const redirigirVacante = (req, res) => res.redirect(`/vacantes/${req.params.url}`);
+
+exports.subirCV = (req, res, next) => {
+    upload(req, res, (error) => {
+        if (error) {
+            if (error instanceof multer.MulterError) {
+                if (error.code === 'LIMIT_FILE_SIZE') {
+                    req.flash('error', 'The file is too large. Maximum size is 150 KB');
+                } else {
+                    req.flash('error', error.message);
+                }
+            } else {
+                req.flash('error', error.message);
+            }
+
+            return redirigirVacante(req, res);
+        }
+
+        next();
+    });
+};
+
+exports.contactar = async (req, res, next) => {
+    const vacante = await Vacante.findOne({ url: req.params.url });
+
+    if (!vacante) {
+        return next();
+    }
+
+    if (!req.file) {
+        req.flash('error', 'You must upload your CV in PDF format');
+        return redirigirVacante(req, res);
+    }
+
+    vacante.candidatos.push({
+        nombre: req.body.nombre,
+        email: req.body.email,
+        cv: req.file.filename
+    });
+
+    await vacante.save();
+
+    req.flash('exito', 'Your application has been sent successfully');
+    redirigirVacante(req, res);
+};
+
+exports.mostrarCandidatos = async (req, res) => {
+    const vacante = await Vacante.findById(req.params.vacanteId).lean();
+
+    if (!vacante) {
+        req.flash('error', 'Vacancy not found');
+        return res.redirect('/administracion');
+    }
+
+    if (!verificarAutor(vacante, req.user)) {
+        req.flash('error', 'Not authorized');
+        return res.redirect('/administracion');
+    }
+
+    res.render('candidatos', {
+        nombrePagina: `Candidates - ${vacante.titulo}`,
+        cerrarSesion: true,
+        nombre: req.user.nombre,
+        candidatos: vacante.candidatos
+    });
 };

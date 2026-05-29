@@ -8,8 +8,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let alertas = document.querySelector(".alertas");
 
   if (alertas) {
+    mostrarAlertasSwal();
     limpiarAlertas();
   }
+
+  validarImagenPerfil();
 
   if (skills) {
     skills.addEventListener("click", agregarSkills);
@@ -64,6 +67,59 @@ const limpiarAlertas = () => {
       clearInterval(interval);
     }
   }, 2000);
+};
+
+const mostrarAlertasSwal = async () => {
+  const contenedor = document.querySelector(".alertas");
+  if (!contenedor) return;
+
+  const alertas = [...contenedor.querySelectorAll(".alerta")];
+  if (!alertas.length) return;
+
+  for (const alerta of alertas) {
+    const esExito = alerta.classList.contains("correcto");
+
+    await Swal.fire({
+      icon: esExito ? "success" : "error",
+      title: esExito ? "Success" : "Error",
+      text: alerta.textContent.trim(),
+      confirmButtonColor: "#3085d6",
+    });
+  }
+};
+
+const validarImagenPerfil = () => {
+  const inputImagen = document.querySelector('input[name="imagen"]');
+  if (!inputImagen) return;
+
+  const formatosPermitidos = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  const tamanoMaximo = 100000;
+
+  inputImagen.addEventListener("change", () => {
+    const archivo = inputImagen.files[0];
+    if (!archivo) return;
+
+    if (!formatosPermitidos.includes(archivo.type)) {
+      inputImagen.value = "";
+      Swal.fire({
+        icon: "error",
+        title: "Invalid format",
+        text: "Only JPEG, PNG, GIF or WebP images are allowed",
+        confirmButtonColor: "#3085d6",
+      });
+      return;
+    }
+
+    if (archivo.size > tamanoMaximo) {
+      inputImagen.value = "";
+      Swal.fire({
+        icon: "error",
+        title: "File too large",
+        text: "The image must be 100 KB or smaller",
+        confirmButtonColor: "#3085d6",
+      });
+    }
+  });
 };
 
 // Eliminar vacantes
