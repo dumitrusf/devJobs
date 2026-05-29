@@ -12,6 +12,7 @@ const bodyParser = require('body-parser');
 const flash = require('connect-flash');
 const passport = require('./config/passport');
 const createError = require('http-errors');
+const { getMongoUrl } = require('./config/database');
 
 const router = require('./routes');
 
@@ -41,7 +42,7 @@ app.use(session({
     name: process.env.KEY,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.DATABASE })
+    store: MongoStore.create({ mongoUrl: getMongoUrl() })
 }));
 
 // Alertas y flash messages

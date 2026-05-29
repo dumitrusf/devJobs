@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
+const { getMongoUrl } = require('./database');
 
-if (!process.env.DATABASE) {
-    throw new Error('DATABASE no está definida. Configura la variable de entorno DATABASE.');
+const mongoUrl = getMongoUrl();
+
+if (!mongoUrl) {
+    throw new Error(
+        'No hay URL de MongoDB. Define DATABASE (Atlas) o enlaza MONGO_URL del servicio Mongo en Railway.'
+    );
 }
 
-mongoose.connect(process.env.DATABASE);
+mongoose.connect(mongoUrl);
 
 mongoose.connection.on('open', () => {
     console.log('Connected to MongoDB');
