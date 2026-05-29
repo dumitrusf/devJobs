@@ -14,6 +14,8 @@ exports.formularioNuevaVacante = (req, res) => {
 exports.agregarVacante = async (req, res) => {
     const vacante = new Vacante(req.body);
 
+    vacante.autor = req.user._id;
+    
     // crear arreglo de habilidades (skills)
     vacante.skills = req.body.skills.split(',');
 
