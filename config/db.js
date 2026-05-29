@@ -11,4 +11,5 @@ mongoose.connection.on('error', (error) => {
     console.log(error);
 });
 
+require('../models/Usuarios');
 require('../models/Vacantes');
