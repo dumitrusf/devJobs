@@ -4,46 +4,48 @@
 
         <div class="campo">
             <label>title</label>
-            <input type="text" name="titulo" placeholder="Ej: React Developer" required>
+            <input type="text" name="titulo" value="{{vacante.titulo}}" placeholder="Ej: React Developer">
         </div>
         <div class="campo">
             <label>Company</label>
-            <input type="text" name="empresa" placeholder="Company Hires" required>
+            <input type="text" name="empresa" value="{{vacante.empresa}}" placeholder="Company Hires">
         </div>
         <div class="campo">
             <label>Location</label>
-            <input type="text" name="ubicacion" placeholder="Ej: México o Remoto" required>
+            <input type="text" name="ubicacion" value="{{vacante.ubicacion}}" placeholder="Ej: México o Remoto">
         </div>
         <div class="campo">
             <label>Salary (USD)</label>
-            <input type="text" name="salario" placeholder="Ej: 500 USD" required>
+            <input type="text" name="salario" value="{{vacante.salario}}" placeholder="Ej: 500 USD">
         </div>
         <div class="campo">
             <label>Contract</label>
             <select name="contrato">
-                <option value="" disabled selected>-- Select --</option>
-                <option value="Freelance">Freelance</option>
-                <option value="Full Time">Full Time</option>
-                <option value="Part Time">Part Time</option>
-                <option value="Project Based">Project Based</option>
+                {{#tipoContrato vacante.contrato}}
+                    <option value="" disabled selected>-- Select --</option>
+                    <option value="Freelance">Freelance</option>
+                    <option value="Full Time">Full Time</option>
+                    <option value="Part Time">Part Time</option>
+                    <option value="Project Based">Project Based</option>
+                {{/tipoContrato}}
             </select>
         </div>
         <h3>Job Description</h3>
         <div class="campo descripcion">
             <label>Description</label>
-            <input type="hidden" id="x" name="descripcion">
+            <input type="hidden" id="x" value="{{{vacante.descripcion}}}" name="descripcion">
             <trix-editor input="x"></trix-editor>
         </div>
 
         <h3>Skills</h3>
 
         <ul class="lista-conocimientos">
-            {{#seleccionarSkills}}
+            {{#seleccionarSkills vacante.skills}}
             {{/seleccionarSkills}}
         </ul>
 
         <div class="campo centrar-horizontal">
-            <input type="hidden" name="skills" id="skills">
+            <input type="hidden" name="skills" id="skills" value="{{skillsInput}}">
             <input type="submit" value="Publish" class="btn btn-azul">
         </div>
 

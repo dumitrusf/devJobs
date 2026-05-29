@@ -35,18 +35,19 @@ const agregarSkills = e => {
             e.target.classList.add('activo');
         }
     } 
-    const skillsArray = [...skills]
-    document.querySelector('#skills').value = skillsArray;
+    const skillsArray = [...skills];
+    document.querySelector('#skills').value = skillsArray.join(',');
 };
 
 const skillsSeleccionados = () => {
-    const seleccionadas = Array.from(document.querySelectorAll('.lista-conocimientos .activo') );
+    const seleccionadas = Array.from(document.querySelectorAll('.lista-conocimientos .activo'));
 
     seleccionadas.forEach(seleccionada => {
         skills.add(seleccionada.textContent);
     });
 
-    document.querySelector('#skills').value = skillsArray;
+    const skillsArray = [...skills];
+    document.querySelector('#skills').value = skillsArray.join(',');
 };
 
 const limpiarAlertas = () => {

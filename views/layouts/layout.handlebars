@@ -29,6 +29,17 @@
         </div>
       {{/if}}
 
+      {{#if cerrarSesion}}
+            <div class="cerrar-sesion">
+                <p>Hi!, {{nombre}}</p>
+                {{#if imagen}}
+                    <img src="/uploads/perfiles/{{imagen}}" class="admin-perfil">
+                {{/if}}
+                <a href="/administracion">Administration</a>
+                <a href="/cerrar-sesion">Logout</a>
+            </div>
+        {{/if}}
+
     </div>
 
     <header class="site-header contenedor separador">
