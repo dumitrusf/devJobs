@@ -46,7 +46,17 @@ const skillsSeleccionados = () => {
         skills.add(seleccionada.textContent);
     });
 
-    // inyectarlo en el hidden
-    const skillsArray = [...skills]
     document.querySelector('#skills').value = skillsArray;
+};
+
+const limpiarAlertas = () => {
+    const alertas = document.querySelector('.alertas');
+    const interval = setInterval(() => {
+        if (alertas.children.length > 0) {
+            alertas.removeChild(alertas.children[0]);
+        } else {
+            alertas.parentElement.removeChild(alertas);
+            clearInterval(interval);
+        }
+    }, 2000);
 };

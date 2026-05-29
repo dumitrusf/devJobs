@@ -39,7 +39,14 @@ app.use(session({
     store: MongoStore.create({ mongoUrl: process.env.DATABASE })
 }));
 
+// Alertas y flash messages
 app.use(flash());
+
+// Crear nuestro middleware
+app.use((req, res, next) => {
+    res.locals.mensajes = req.flash();
+    next();
+});
 
 app.use('/', router());
 
