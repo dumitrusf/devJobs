@@ -65,18 +65,23 @@ exports.enviarToken = async (req, res) => {
 
     await usuario.save();
 
-    const resetUrl = `http://${req.headers.host}/reestablecer-password/${usuario.token}`;
+    const protocolo = req.headers['x-forwarded-proto'] || req.protocol;
+    const resetUrl = `${protocolo}://${req.headers.host}/reestablecer-password/${usuario.token}`;
 
-    // console.log(resetUrl);
+    try {
+        await enviarEmail.enviar({
+            usuario,
+            subject: 'Password Reset',
+            resetUrl,
+            archivo: 'reset'
+        });
 
-    await enviarEmail.enviar({
-        usuario,
-        subject: 'Password Reset',
-        resetUrl,
-        archivo: 'reset'
-    });
+        req.flash('exito', 'Check your email for further instructions');
+    } catch (error) {
+        console.log('Error enviando email de reset:', error.message);
+        req.flash('error', 'The reset email could not be sent. Try again later.');
+    }
 
-    req.flash('exito', 'Check your email for further instructions');
     res.redirect('/iniciar-sesion');
 };
 

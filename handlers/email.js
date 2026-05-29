@@ -8,7 +8,10 @@ const transport = nodemailer.createTransport({
     auth: {
         user: config.user,
         pass: config.pass
-    }
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000
 });
 
 exports.enviar = async (opciones) => {
