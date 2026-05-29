@@ -7,8 +7,10 @@ const session = require('express-session');
 const { MongoStore } = require('connect-mongo');
 const bodyParser = require('body-parser');
 const flash = require('connect-flash');
+const passport = require('./config/passport');
 
 require('dotenv').config({ path: 'variables.env' });
+require('./controllers/authController');
 require('./config/db');
 
 const app = express();
@@ -42,8 +44,13 @@ app.use(session({
 // Alertas y flash messages
 app.use(flash());
 
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Crear nuestro middleware
 app.use((req, res, next) => {
+    res.locals.usuario = req.user || null;
     res.locals.mensajes = req.flash();
     next();
 });
