@@ -27,8 +27,8 @@ exports.mostrarPanel = async (req, res) => {
     res.render('administracion', {
         nombrePagina: 'Administration Panel',
         tagline: 'Create and Manage your vacancies here',
-        // cerrarSesion: true,
-        // nombre : req.user.nombre,
+        cerrarSesion: true,
+        nombre : req.user.nombre,
         // imagen : req.user.imagen,
         vacantes
     })

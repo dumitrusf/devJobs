@@ -6,6 +6,8 @@ exports.formularioNuevaVacante = (req, res) => {
     res.render('nueva-vacante', {
         nombrePagina: 'Nueva Vacante',
         tagline: 'Fill out the form and publish your vacancy',
+        cerrarSesion: true,
+        nombre: req.user.nombre,
         trix: true
     });
 };
@@ -36,6 +38,8 @@ exports.mostrarVacante = async (req, res, next) => {
     res.render('vacante', {
         vacante,
         nombrePagina : vacante.titulo,
+        cerrarSesion: true,
+        nombre: req.user.nombre,
         barra: true
     });
 };
@@ -48,7 +52,10 @@ exports.formEditarVacante = async (req, res, next) => {
     res.render('editar-vacante', {
         vacante,
         nombrePagina: `Editar - ${vacante.titulo}`,
-        trix: true
+        cerrarSesion: true,
+        nombre: req.user.nombre,
+        trix: true,
+        skillsInput: vacante.skills.join(',')
     });
 };
 
@@ -68,28 +75,47 @@ exports.editarVacante = async (req, res) => {
 // Validar y sanitizar (express-validator v7 — el curso usa v5 con req.sanitizeBody)
 exports.validarVacante = async (req, res, next) => {
     await Promise.all([
-        body('titulo').trim().escape().notEmpty().withMessage('Agrega un Titulo a la Vacante').run(req),
-        body('empresa').trim().escape().notEmpty().withMessage('Agrega una Empresa').run(req),
-        body('ubicacion').trim().escape().notEmpty().withMessage('Agrega una Ubicación').run(req),
-        body('contrato').trim().escape().notEmpty().withMessage('Selecciona el Tipo de Contrato').run(req),
-        body('skills').trim().escape().notEmpty().withMessage('Agrega al menos una habilidad').run(req),
+        body('titulo').trim().notEmpty().withMessage('Add a Title to the Vacancy').run(req),
+        body('empresa').trim().notEmpty().withMessage('Add a Company').run(req),
+        body('ubicacion').trim().notEmpty().withMessage('Add a Location').run(req),
+        body('contrato').trim().notEmpty().withMessage('Select the Type of Contract').run(req),
+        body('skills').trim().notEmpty().withMessage('Add at least one skill').run(req),
     ]);
 
     const errores = validationResult(req);
 
     if (!errores.isEmpty()) {
-        req.flash('error', errores.array().map(error => error.msg));
+        errores.array().forEach(error => req.flash('error', error.msg));
+
+        const skillsInput = req.body.skills || '';
+        const skills = skillsInput ? skillsInput.split(',') : [];
+        const datosVacante = { ...req.body, skills };
+
+        if (!req.params.url) {
+            return res.render('nueva-vacante', {
+                nombrePagina: 'Nueva Vacante',
+                tagline: 'Fill out the form and publish your vacancy',
+                cerrarSesion: true,
+                nombre: req.user.nombre,
+                trix: true,
+                vacante: datosVacante,
+                skillsInput,
+                mensajes: req.flash()
+            });
+        }
 
         const vacante = await Vacante.findOne({ url: req.params.url }).lean();
 
         return res.render('editar-vacante', {
             vacante: {
                 ...vacante,
-                ...req.body,
-                skills: req.body.skills ? req.body.skills.split(',') : vacante.skills
+                ...datosVacante
             },
             nombrePagina: `Editar - ${req.body.titulo || vacante.titulo}`,
+            cerrarSesion: true,
+            nombre: req.user.nombre,
             trix: true,
+            skillsInput,
             mensajes: req.flash()
         });
     }

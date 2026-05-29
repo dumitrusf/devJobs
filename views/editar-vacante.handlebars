@@ -4,19 +4,19 @@
 
         <div class="campo">
             <label>Title</label>
-            <input type="text" value="{{vacante.titulo}}" name="titulo" placeholder="Example: React Developer"  required>
+            <input type="text" value="{{vacante.titulo}}" name="titulo" placeholder="Example: React Developer" >
         </div>
         <div class="campo">
             <label>Company</label>
-            <input type="text" value="{{vacante.empresa}}" name="empresa" placeholder="Company Hiring" required>
+            <input type="text" value="{{vacante.empresa}}" name="empresa" placeholder="Company Hiring">
         </div>
         <div class="campo">
             <label>Location</label>
-            <input type="text" value="{{vacante.ubicacion}}" name="ubicacion" placeholder="Example: Mexico or Remote" required>
+            <input type="text" value="{{vacante.ubicacion}}" name="ubicacion" placeholder="Example: Mexico or Remote">
         </div>
         <div class="campo">
             <label>Salary (USD)</label>
-            <input type="text" value="{{vacante.salario}}" name="salario" placeholder="Example: $500 USD" required>
+            <input type="text" value="{{vacante.salario}}" name="salario" placeholder="Example: $500 USD">
         </div>
         <div class="campo">
             <label>Contract</label>
@@ -45,7 +45,7 @@
         </ul>
 
         <div class="campo centrar-horizontal">
-            <input type="hidden" name="skills" id="skills">
+            <input type="hidden" name="skills" id="skills" value="{{skillsInput}}">
             <input type="submit" value="Save Changes" class="btn btn-azul">
         </div>
 
