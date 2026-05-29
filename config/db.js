@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
-require('dotenv').config({path: 'variables.env'});
+
+if (!process.env.DATABASE) {
+    throw new Error('DATABASE no está definida. Configura la variable de entorno DATABASE.');
+}
 
 mongoose.connect(process.env.DATABASE);
 

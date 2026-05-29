@@ -16,7 +16,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon ./index",
-    "start": "concurrently \"npm run dev\" \"npm run watch\"",
+    "dev:full": "concurrently \"npm run dev\" \"npm run watch\"",
+    "start": "node index.js",
+    "build": "webpack --mode production",
     "watch": "webpack --watch --mode development"
   },
   "dependencies": {

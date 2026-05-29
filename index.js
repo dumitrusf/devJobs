@@ -1,7 +1,6 @@
 const path = require('path');
 
-require('dotenv').config({ path: path.join(__dirname, 'variables.env') });
-
+require('./config/env');
 require('./config/db');
 
 const express = require('express');
@@ -77,6 +76,8 @@ app.use((error, req, res, next) => {
     });
 });
 
-app.listen(process.env.PORT, () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
+const PORT = process.env.PORT || 5001;
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
