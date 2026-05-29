@@ -51,7 +51,7 @@ app.use(passport.session());
 
 // Crear nuestro middleware
 app.use((req, res, next) => {
-    res.locals.usuario = req.user || null;
+    res.locals.usuario = req.user ? req.user.toObject() : null;
     res.locals.mensajes = req.flash();
     next();
 });

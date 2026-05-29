@@ -1,63 +1,108 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const skills = document.querySelector('.lista-conocimientos');
+const axios = require('axios');
+const Swal = require('sweetalert2');
 
-     // Limpiar las alertas
-     let alertas = document.querySelector('.alertas');
+document.addEventListener("DOMContentLoaded", () => {
+  const skills = document.querySelector(".lista-conocimientos");
 
-     if(alertas) {
-         limpiarAlertas();
-     }
+  // Limpiar las alertas
+  let alertas = document.querySelector(".alertas");
 
-    if(skills) {
-        skills.addEventListener('click', agregarSkills);
-        // una vez que estamos en editar, llamar la función
-        skillsSeleccionados();
-    }
+  if (alertas) {
+    limpiarAlertas();
+  }
 
-    const vacantesListado = document.querySelector('.panel-administracion');
+  if (skills) {
+    skills.addEventListener("click", agregarSkills);
+    // una vez que estamos en editar, llamar la función
+    skillsSeleccionados();
+  }
 
-    if(vacantesListado){
-        vacantesListado.addEventListener('click', accionesListado);
-    }
+  const vacantesListado = document.querySelector(".panel-administracion");
 
+  if (vacantesListado) {
+    vacantesListado.addEventListener("click", accionesListado);
+  }
 });
 
 const skills = new Set();
-const agregarSkills = e => {
-    if(e.target.tagName === 'LI'){
-        if(e.target.classList.contains('activo')){
-            // quitarlo del set y quitar la clase
-            skills.delete(e.target.textContent);
-            e.target.classList.remove('activo');
-        } else {
-            // agregarlo al set y agregar la clase
-            skills.add(e.target.textContent);
-            e.target.classList.add('activo');
-        }
-    } 
-    const skillsArray = [...skills];
-    document.querySelector('#skills').value = skillsArray.join(',');
+const agregarSkills = (e) => {
+  if (e.target.tagName === "LI") {
+    if (e.target.classList.contains("activo")) {
+      // quitarlo del set y quitar la clase
+      skills.delete(e.target.textContent);
+      e.target.classList.remove("activo");
+    } else {
+      // agregarlo al set y agregar la clase
+      skills.add(e.target.textContent);
+      e.target.classList.add("activo");
+    }
+  }
+  const skillsArray = [...skills];
+  document.querySelector("#skills").value = skillsArray.join(",");
 };
 
 const skillsSeleccionados = () => {
-    const seleccionadas = Array.from(document.querySelectorAll('.lista-conocimientos .activo'));
+  const seleccionadas = Array.from(
+    document.querySelectorAll(".lista-conocimientos .activo"),
+  );
 
-    seleccionadas.forEach(seleccionada => {
-        skills.add(seleccionada.textContent);
-    });
+  seleccionadas.forEach((seleccionada) => {
+    skills.add(seleccionada.textContent);
+  });
 
-    const skillsArray = [...skills];
-    document.querySelector('#skills').value = skillsArray.join(',');
+  const skillsArray = [...skills];
+  document.querySelector("#skills").value = skillsArray.join(",");
 };
 
 const limpiarAlertas = () => {
-    const alertas = document.querySelector('.alertas');
-    const interval = setInterval(() => {
-        if (alertas.children.length > 0) {
-            alertas.removeChild(alertas.children[0]);
-        } else {
-            alertas.parentElement.removeChild(alertas);
-            clearInterval(interval);
-        }
-    }, 2000);
+  const alertas = document.querySelector(".alertas");
+  const interval = setInterval(() => {
+    if (alertas.children.length > 0) {
+      alertas.removeChild(alertas.children[0]);
+    } else {
+      alertas.parentElement.removeChild(alertas);
+      clearInterval(interval);
+    }
+  }, 2000);
+};
+
+// Eliminar vacantes
+const accionesListado = (e) => {
+  e.preventDefault();
+
+  if (e.target.dataset.eliminar) {
+    Swal.fire({
+      title: "Confirm Delete?",
+      text: "Once deleted, it cannot be recovered",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Delete",
+      cancelButtonText: "No, Abort",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const url = `${location.origin}/vacantes/eliminar/${e.target.dataset.eliminar}`;
+
+        axios
+          .delete(url)
+          .then(function (respuesta) {
+            if (respuesta.status === 200) {
+              Swal.fire("Deleted", respuesta.data, "success");
+
+              e.target.closest(".vacante").remove();
+            }
+          })
+          .catch(() => {
+            Swal.fire({
+              icon: "error",
+              title: "There was an error",
+              text: "Could not delete",
+            });
+          });
+      }
+    });
+  } else if (e.target.tagName === "A" && e.target.href && e.target.href !== "#") {
+    window.location.href = e.target.href;
+  }
 };

@@ -122,3 +122,28 @@ exports.validarVacante = async (req, res, next) => {
 
     next();
 };
+
+exports.eliminarVacante = async (req, res) => {
+    const { id } = req.params;
+    
+    const vacante = await Vacante.findById(id);
+    
+    if (!vacante) {
+        return res.status(404).send('Vacancy not found');
+    }
+    
+    if(verificarAutor(vacante, req.user)){
+        // Todo bien, si es el usuario, eliminar
+        await vacante.deleteOne();
+        res.status(200).send('Vacancy deleted successfully');
+    } else {
+        // no permitido
+        res.status(403).send('Not authorized');
+    }
+};
+
+// Verificar si el usuario es el autor de la vacante
+const verificarAutor = (vacante, usuario) => {
+    if (!vacante || !usuario) return false;
+    return vacante.autor.toString() === usuario._id.toString();
+};
