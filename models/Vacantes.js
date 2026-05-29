@@ -43,7 +43,8 @@ const vacantesSchema =  new mongoose.Schema({
     }], 
     autor : {
         type: mongoose.Schema.ObjectId, 
-        ref: 'Usuarios'
+        ref: 'Usuarios',
+        required: 'The author is required'
     }
 });
 

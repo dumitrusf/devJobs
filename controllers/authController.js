@@ -1,6 +1,7 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const Usuarios = require('../models/Usuarios');
+const Vacante = require('../models/Vacantes');
 
 exports.autenticarUsuario = passport.authenticate('local', {
     successRedirect: '/administracion',
@@ -9,6 +10,7 @@ exports.autenticarUsuario = passport.authenticate('local', {
     badRequestMessage: 'Both fields must be filled'
 });
 
+// Revisar si el usuario esta autenticado o no
 exports.verificarUsuario = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
@@ -16,6 +18,21 @@ exports.verificarUsuario = (req, res, next) => {
 
     return res.redirect('/iniciar-sesion');
 };
+
+exports.mostrarPanel = async (req, res) => {
+
+    // consultar el usuario autenticado
+    const vacantes = await Vacante.find({ autor: req.user._id }).lean();
+    
+    res.render('administracion', {
+        nombrePagina: 'Administration Panel',
+        tagline: 'Create and Manage your vacancies here',
+        // cerrarSesion: true,
+        // nombre : req.user.nombre,
+        // imagen : req.user.imagen,
+        vacantes
+    })
+}
 
 exports.cerrarSesion = (req, res, next) => {
     req.logout((err) => {
