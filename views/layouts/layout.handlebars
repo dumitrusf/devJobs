@@ -29,16 +29,21 @@
         </div>
       {{/if}}
 
-      {{#if cerrarSesion}}
+      {{#if usuario}}
             <div class="cerrar-sesion">
-                <p>Hi!, {{nombre}}</p>
-                {{#if imagen}}
-                    <img src="/uploads/perfiles/{{imagen}}" class="admin-perfil">
+                <p>Hi!, {{usuario.nombre}}</p>
+                {{#if usuario.imagen}}
+                    <img src="/uploads/perfiles/{{usuario.imagen}}" class="admin-perfil" alt="Profile">
                 {{/if}}
                 <a href="/administracion">Administration</a>
                 <a href="/cerrar-sesion">Logout</a>
             </div>
-        {{/if}}
+      {{else}}
+            <div class="cerrar-sesion">
+                <a href="/iniciar-sesion">Sign in</a>
+                <a href="/crear-cuenta">Create account</a>
+            </div>
+      {{/if}}
 
     </div>
 

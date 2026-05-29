@@ -5,6 +5,10 @@ module.exports = {
       seleccionadas = [];
     }
 
+    if (!Array.isArray(seleccionadas)) {
+      seleccionadas = [];
+    }
+
     const skills = [
       "HTML5",
       "CSS3",
