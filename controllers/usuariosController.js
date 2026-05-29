@@ -11,13 +11,28 @@ if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+const imagenesPermitidas = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+
+const renderEditarPerfil = (req, res, imagen) => {
+    const usuario = req.user.toObject();
+
+    return res.render('editar-perfil', {
+        nombrePagina: 'Edit your profile in devJobs',
+        usuario: { ...usuario, ...req.body },
+        cerrarSesion: true,
+        nombre: req.body.nombre || usuario.nombre,
+        imagen,
+        mensajes: req.flash()
+    });
+};
+
 const configuracionMulter = {
     limits: { fileSize: 100000 },
     fileFilter: (req, file, cb) => {
         if (file.mimetype.startsWith('image/')) {
             cb(null, true);
         } else {
-            cb(new Error('Only images are allowed'));
+            cb(new Error('Invalid format. Only image files are allowed'));
         }
     },
     storage: multer.diskStorage({
@@ -25,30 +40,50 @@ const configuracionMulter = {
             cb(null, uploadsDir);
         },
         filename: (req, file, cb) => {
-            const extension = file.mimetype.split('/')[1];
-            cb(null, `${shortid.generate()}.${extension}`);
+            cb(null, shortid.generate());
         }
     })
 };
 
 exports.subirImagen = (req, res, next) => {
-    multer(configuracionMulter).single('imagen')(req, res, (err) => {
+    multer(configuracionMulter).single('imagen')(req, res, async (err) => {
         if (err) {
-            const usuario = req.user.toObject();
+            if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+                req.flash('error', 'The image is too large. Maximum size is 100 KB');
+            } else {
+                req.flash('error', err.message);
+            }
 
-            req.flash('error', err.message);
-
-            return res.render('editar-perfil', {
-                nombrePagina: 'Edit your profile in devJobs',
-                usuario: { ...usuario, ...req.body },
-                cerrarSesion: true,
-                nombre: req.body.nombre || usuario.nombre,
-                imagen: usuario.imagen,
-                mensajes: req.flash()
-            });
+            return renderEditarPerfil(req, res, req.user.imagen);
         }
 
-        next();
+        if (!req.file) {
+            return next();
+        }
+
+        try {
+            const { fileTypeFromFile } = await import('file-type');
+            const tipo = await fileTypeFromFile(req.file.path);
+
+            if (!tipo || !imagenesPermitidas.has(tipo.mime)) {
+                fs.unlinkSync(req.file.path);
+                req.flash('error', 'Invalid format. Only JPEG, PNG, GIF or WebP images are allowed');
+                return renderEditarPerfil(req, res, req.user.imagen);
+            }
+
+            const nombreFinal = `${req.file.filename}.${tipo.ext}`;
+            fs.renameSync(req.file.path, path.join(uploadsDir, nombreFinal));
+            req.file.filename = nombreFinal;
+
+            next();
+        } catch (error) {
+            if (req.file?.path && fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path);
+            }
+
+            req.flash('error', 'Could not validate the image. Please try again');
+            return renderEditarPerfil(req, res, req.user.imagen);
+        }
     });
 };
 
@@ -140,7 +175,12 @@ exports.editarPerfil = async (req, res) => {
 
     try {
         await usuario.save();
-        req.flash('exito', 'Changes saved correctly');
+
+        if (req.file) {
+            req.flash('exito', 'Profile image uploaded successfully');
+        }
+
+        req.flash('exito', 'Changes saved successfully');
         res.redirect('/administracion');
     } catch (error) {
         req.flash('error', error.message || 'Error saving profile');

@@ -74,6 +74,18 @@ module.exports = () => {
         authController.verificarUsuario,
         authController.cerrarSesion
     );
+
+    // Recibir Mensajes de Candidatos
+    router.post('/vacantes/:url', 
+        vacantesController.subirCV,
+        vacantesController.contactar
+    );
+
+    // Ver candidatos de una vacante
+    router.get('/candidatos/:vacanteId',
+        authController.verificarUsuario,
+        vacantesController.mostrarCandidatos
+    );
     
     return router;
 }

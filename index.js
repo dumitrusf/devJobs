@@ -30,7 +30,7 @@ app.set('view engine', 'handlebars');
 
 // static files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'uploads'), { index: false }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), { index: false }));
 
 app.use(cookieParser());
 

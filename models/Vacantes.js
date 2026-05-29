@@ -49,6 +49,8 @@ const vacantesSchema =  new mongoose.Schema({
 });
 
 vacantesSchema.pre('save', function() {
+    if (!this.isNew) return;
+
     const url = slug(this.titulo);
     this.url = `${url}-${shortid.generate()}`;
 });
