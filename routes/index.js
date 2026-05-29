@@ -87,5 +87,14 @@ module.exports = () => {
         vacantesController.mostrarCandidatos
     );
     
+    // Resetear password (emails)
+    router.get('/reestablecer-password', authController.formReestablecerPassword);
+    router.post('/reestablecer-password', authController.enviarToken);
+
+    // Resetear Password ( Almacenar en la BD )
+    router.get('/reestablecer-password/:token', authController.reestablecerPassword);
+    router.post('/reestablecer-password/:token', authController.guardarPassword);
+
+    
     return router;
 }

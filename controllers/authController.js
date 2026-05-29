@@ -1,7 +1,10 @@
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const Usuarios = require('../models/Usuarios');
-const Vacante = require('../models/Vacantes');
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+const enviarEmail = require('../handlers/email');
+
+const Vacante = mongoose.model('Vacante');
+const Usuarios = mongoose.model('Usuarios');
 
 exports.autenticarUsuario = passport.authenticate('local', {
     successRedirect: '/administracion',
@@ -10,7 +13,6 @@ exports.autenticarUsuario = passport.authenticate('local', {
     badRequestMessage: 'Both fields must be filled'
 });
 
-// Revisar si el usuario esta autenticado o no
 exports.verificarUsuario = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
@@ -20,19 +22,17 @@ exports.verificarUsuario = (req, res, next) => {
 };
 
 exports.mostrarPanel = async (req, res) => {
-
-    // consultar el usuario autenticado
     const vacantes = await Vacante.find({ autor: req.user._id }).lean();
-    
+
     res.render('administracion', {
         nombrePagina: 'Administration Panel',
         tagline: 'Create and Manage your vacancies here',
         cerrarSesion: true,
-        nombre : req.user.nombre,
-        // imagen : req.user.imagen,
+        nombre: req.user.nombre,
+        imagen: req.user.imagen,
         vacantes
-    })
-}
+    });
+};
 
 exports.cerrarSesion = (req, res, next) => {
     req.logout((err) => {
@@ -45,32 +45,72 @@ exports.cerrarSesion = (req, res, next) => {
     });
 };
 
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password'
-}, async (email, password, done) => {
-    const usuario = await Usuarios.findOne({ email });
+exports.formReestablecerPassword = (req, res) => {
+    res.render('reestablecer-password', {
+        nombrePagina: 'Reset your password',
+        tagline: 'If you already have an account but forgot your password, enter your email'
+    });
+};
+
+exports.enviarToken = async (req, res) => {
+    const usuario = await Usuarios.findOne({ email: req.body.email });
 
     if (!usuario) {
-        return done(null, false, { message: 'That user does not exist' });
+        req.flash('error', 'That account does not exist');
+        return res.redirect('/iniciar-sesion');
     }
 
-    if (!usuario.compararPassword(password)) {
-        return done(null, false, { message: 'Password incorrect' });
+    usuario.token = crypto.randomBytes(20).toString('hex');
+    usuario.expira = Date.now() + 3600000;
+
+    await usuario.save();
+
+    const resetUrl = `http://${req.headers.host}/reestablecer-password/${usuario.token}`;
+
+    // console.log(resetUrl);
+
+    await enviarEmail.enviar({
+        usuario,
+        subject: 'Password Reset',
+        resetUrl,
+        archivo: 'reset'
+    });
+
+    req.flash('exito', 'Check your email for further instructions');
+    res.redirect('/iniciar-sesion');
+};
+
+exports.reestablecerPassword = async (req, res) => {
+    const usuario = await Usuarios.findOne({
+        token: req.params.token
+    });
+
+    if (!usuario) {
+        req.flash('error', 'This form is no longer valid, please try again');
+        return res.redirect('/reestablecer-password');
     }
 
-    return done(null, usuario);
-}));
+    res.render('nuevo-password', {
+        nombrePagina: 'New Password'
+    });
+};
 
-passport.serializeUser((usuario, done) => {
-    done(null, usuario._id);
-});
+exports.guardarPassword = async (req, res) => {
+    const usuario = await Usuarios.findOne({
+        token: req.params.token
+    });
 
-passport.deserializeUser(async (id, done) => {
-    try {
-        const usuario = await Usuarios.findById(id);
-        done(null, usuario);
-    } catch (error) {
-        done(error);
+    if (!usuario) {
+        req.flash('error', 'This form is no longer valid, please try again');
+        return res.redirect('/reestablecer-password');
     }
-});
+
+    usuario.password = req.body.password;
+    usuario.token = undefined;
+    usuario.expira = undefined;
+
+    await usuario.save();
+
+    req.flash('exito', 'Password updated successfully');
+    res.redirect('/iniciar-sesion');
+};
