@@ -6,8 +6,6 @@ require('./config/db');
 
 const express = require('express');
 const { engine } = require('express-handlebars');
-const path = require('path');
-const router = require('./routes');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const { MongoStore } = require('connect-mongo');
@@ -15,8 +13,7 @@ const bodyParser = require('body-parser');
 const flash = require('connect-flash');
 const passport = require('./config/passport');
 
-require('./controllers/authController');
-require('./config/db');
+const router = require('./routes');
 
 const app = express();
 
