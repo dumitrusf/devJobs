@@ -35,7 +35,7 @@ const upload = multer(configuracionMulter).single('cv');
 
 exports.formularioNuevaVacante = (req, res) => {
     res.render('nueva-vacante', {
-        nombrePagina: 'Nueva Vacante',
+        nombrePagina: 'New Vacancy',
         tagline: 'Fill out the form and publish your vacancy',
         cerrarSesion: true,
         nombre: req.user.nombre,

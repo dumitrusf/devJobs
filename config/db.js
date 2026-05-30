@@ -5,7 +5,7 @@ const mongoUrl = getMongoUrl();
 
 if (!mongoUrl) {
     throw new Error(
-        'No hay URL de MongoDB. Define DATABASE (Atlas) o enlaza MONGO_URL del servicio Mongo en Railway.'
+        'No MongoDB URL. Define DATABASE (Atlas) or link MONGO_URL from the Mongo service on Railway.'
     );
 }
 
