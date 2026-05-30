@@ -55,12 +55,4 @@ vacantesSchema.pre('save', function() {
     this.url = `${url}-${shortid.generate()}`;
 });
 
-// Crear un indice de texto para el buscador
-vacantesSchema.index({
-    titulo: 'text',
-    descripcion: 'text',
-    skills: 'text'
-});
-
-
 module.exports = mongoose.model('Vacante', vacantesSchema);
